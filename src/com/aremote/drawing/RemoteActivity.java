@@ -1,4 +1,4 @@
-package com.aremote;
+package com.aremote.drawing;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -7,27 +7,42 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.view.Window;
+import android.view.WindowManager;
 import com.aremote.connection.ConnectionListener;
 import com.aremote.connection.NetworkService;
-import com.aremote.drawing.RemoteActivity;
 
-public class MainActivity extends Activity
+/**
+ * Created with IntelliJ IDEA.
+ * User: sgreenman
+ * Date: 6/9/12
+ * Time: 7:20 AM
+ * To change this template use File | Settings | File Templates.
+ */
+public class RemoteActivity extends Activity
 {
+   DrawView drawing;
+
+   // Hook to the network service
    NetworkService net_service;
+
+   // bound or not...
    boolean bound = false;
+
+   // Connection listener callback
    ConnectionListener connection_listener;
 
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
-       super.onCreate(savedInstanceState);
-
-       // Start with no layout, in the future this will have "connect" options.
-       setContentView(R.layout.main);
-    }
-
+   // Startup
    @Override
+   public void onCreate(Bundle savedInstanceState)
+   {
+      super.onCreate(savedInstanceState);
+      getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN);
+      requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+   }
+
    public void onStart()
    {
       super.onStart();
@@ -35,6 +50,7 @@ public class MainActivity extends Activity
       bindService(intent, connection, Context.BIND_AUTO_CREATE);
    }
 
+   // Shutdown
    @Override
    public void onStop()
    {
@@ -44,11 +60,6 @@ public class MainActivity extends Activity
          unbindService(connection);
          bound = false;
       }
-   }
-
-   public void onNetworkConnect()
-   {
-      // Switch to RemoteActivity
    }
 
    private ServiceConnection connection = new ServiceConnection()
@@ -65,18 +76,20 @@ public class MainActivity extends Activity
             @Override
             public void onConnect()
             {
-               Intent intent = new Intent(MainActivity.this,
-                     RemoteActivity.class);
-               MainActivity.this.startActivity(intent);
             }
 
             @Override
             public void onDisconnect()
             {
+               RemoteActivity.this.finish();
             }
          };
          binder.registerListener(connection_listener);
          bound = true;
+
+         drawing = new DrawView(RemoteActivity.this, net_service);
+         RemoteActivity.this.setContentView(drawing);
+         drawing.requestFocus();
       }
 
       @Override
