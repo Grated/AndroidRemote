@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="RemoteShared">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/../RemoteShared" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../RemoteShared/src" />
+    </SOURCES>
+  </library>
+</component>
